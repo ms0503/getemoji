@@ -1,0 +1,10 @@
+updates:
+  - directory: "/"
+    package-ecosystem: "cargo"
+    schedule:
+      interval: "weekly"
+  - directory: "/"
+    package-ecosystem: "nix"
+    schedule:
+      interval: "weekly"
+version: 2
