@@ -19,4 +19,4 @@ authors = ["Sora Tonami <ms0503@outlook.com>"]
 edition = "2024"
 name = "getemoji"
 resolver = "3"
-version = "0.2.1"
+version = "0.2.2"
