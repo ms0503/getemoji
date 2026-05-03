@@ -62,11 +62,24 @@ async fn get_emoji_data(name: &str) -> Result<EmojiData, Box<dyn std::error::Err
     Ok(res)
 }
 
+fn is_allowed_icon_url(url: &reqwest::Url) -> bool {
+    if url.scheme() != "https" {
+        return false;
+    }
+    matches!(url.host_str(), Some("misskey.io"))
+}
+
 async fn download_emoji(name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let Ok(emoji) = get_emoji_data(name).await else {
         return Err("Failed to get metadata".into());
     };
-    let Ok(data) = reqwest::get(emoji.icon.url).await else {
+    let Ok(icon_url) = reqwest::Url::parse(&emoji.icon.url) else {
+        return Err("Invalid emoji URL".into());
+    };
+    if !is_allowed_icon_url(&icon_url) {
+        return Err("Untrusted emoji URL".into());
+    }
+    let Ok(data) = reqwest::get(icon_url).await else {
         return Err("Failed to get emoji".into());
     };
     let Ok(data) = data.bytes().await else {
