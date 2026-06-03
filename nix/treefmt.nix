@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   imports = [
-    inputs.treefmt-nix.flakeModule
+    (inputs.treefmt-nix.flakeModule or { })
   ];
   perSystem =
     {
@@ -10,7 +10,7 @@
       pkgs,
       ...
     }:
-    {
+    lib.optionalAttrs (inputs.treefmt-nix ? flakeModule) {
       treefmt.programs = {
         mdformat = {
           enable = true;
