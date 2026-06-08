@@ -5,7 +5,7 @@
 }:
 let
   inherit (lib) cleanSource cleanSourceWith;
-  cargoToml = builtins.fromTOML (builtins.readFile ../Cargo.toml);
+  cargoToml = ../Cargo.toml |> builtins.readFile |> builtins.fromTOML;
 in
 rustPlatform.buildRustPackage {
   inherit (cargoToml.package) version;
