@@ -23,15 +23,18 @@ rustPlatform.buildRustPackage {
     mold
   ];
   pname = cargoToml.package.name;
-  src = cleanSourceWith {
-    filter =
-      name: type:
-      let
-        isNixDirectory = type == "directory" && builtins.baseNameOf name == "nix";
-        isNixFiles =
-          type == "file" && (lib.hasSuffix ".nix" name || builtins.baseNameOf name == "flake.lock");
-      in
-      !isNixDirectory && !isNixFiles;
-    src = cleanSource ../.;
-  };
+  src =
+    let
+      isNotNixDirectory = name: type: !(type == "directory" && builtins.baseNameOf name == "nix");
+      isNotNixFiles =
+        name: type:
+        !(type == "file" && (lib.hasSuffix ".nix" name || builtins.baseNameOf name == "flake.lock"));
+    in
+    cleanSourceWith {
+      filter = isNotNixDirectory;
+      src = cleanSourceWith {
+        filter = isNotNixFiles;
+        src = cleanSource ../.;
+      };
+    };
 }
