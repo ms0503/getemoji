@@ -19,6 +19,16 @@
       };
       url = "github:cachix/git-hooks.nix";
     };
+    ms0503-lib = {
+      inputs = {
+        flake-compat.follows = "";
+        flake-parts.follows = "flake-parts";
+        git-hooks.follows = "";
+        nixpkgs.follows = "nixpkgs";
+        treefmt-nix.follows = "";
+      };
+      url = "github:ms0503/lib.nix";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     systems = {
       flake = false;
@@ -47,7 +57,12 @@
     ];
   };
   outputs =
-    inputs@{ flake-parts, systems, ... }:
+    inputs@{
+      flake-parts,
+      ms0503-lib,
+      systems,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./nix/treefmt.nix
@@ -79,6 +94,7 @@
             in
             callPackage ./nix/package.nix {
               inherit rustPlatform;
+              myLib = ms0503-lib.lib;
             };
         };
       systems = import systems;

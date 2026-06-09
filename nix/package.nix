@@ -1,10 +1,12 @@
 {
   lib,
   mold,
+  myLib,
   rustPlatform,
 }:
 let
-  inherit (lib) cleanSource cleanSourceWith;
+  inherit (myLib) filters;
+  inherit (myLib.build) cleanSourcePipe;
   cargoToml = ../Cargo.toml |> builtins.readFile |> builtins.fromTOML;
 in
 rustPlatform.buildRustPackage {
@@ -23,18 +25,8 @@ rustPlatform.buildRustPackage {
     mold
   ];
   pname = cargoToml.package.name;
-  src =
-    let
-      isNotNixDirectory = name: type: !(type == "directory" && builtins.baseNameOf name == "nix");
-      isNotNixFiles =
-        name: type:
-        !(type == "file" && (lib.hasSuffix ".nix" name || builtins.baseNameOf name == "flake.lock"));
-    in
-    cleanSourceWith {
-      filter = isNotNixDirectory;
-      src = cleanSourceWith {
-        filter = isNotNixFiles;
-        src = cleanSource ../.;
-      };
-    };
+  src = cleanSourcePipe ../. [
+    filters.isNotNixDirectory
+    filters.isNotNixFiles
+  ];
 }
